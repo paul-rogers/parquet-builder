@@ -648,19 +648,38 @@ function setDocumentScrollTop(ypos)
 <p>Parquet provides an obscure feature that lets you define file schema using a text expression. Here is an example:</p> 
 <pre><code>message test { required int32 index; required int32 value (DATE); required int32 raw; }
 </code></pre> 
-<p>A note in the Parquet code says that the syntax follows that in the <a href="http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/36632.pdf">Google Dremel paper</a>. The one addition seems to be the syntax for specifying the Parquet logical type (the &quot;(DATE)&quot; bit in the second column above). See <a href="https://github.com/Parquet/parquet-format/blob/master/LogicalTypes.md">this page</a> for the Parquet logical types.</p> 
+<p>A note in the Parquet code says that the syntax follows that in the <a href="http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/36632.pdf">Google Dremel paper</a>. The one addition seems to be the syntax for specifying the logical type (see below.)</p> 
+<ul> 
+ <li>It seems that the message name is not used (or, I've not discovered it), just use anything you want.</li> 
+ <li>For each field, you give the cardinality using the same modes as in Drill: <code>required</code>, <code>optional</code> or <code>repeated</code>.</li> 
+ <li>Next is the storage type, using one of those <a href="https://parquet.apache.org/documentation/latest/">defined in Parquet</a>.</li> 
+ <li>Next is the field name as it will appear in Drill or when examining the file with the Parquet tools.</li> 
+ <li>The last field is optional and is the the Parquet logical type (the &quot;(DATE)&quot; bit in the second column above). See <a href="https://github.com/Parquet/parquet-format/blob/master/LogicalTypes.md">this page</a> for the Parquet logical types.</li> 
+</ul> 
+<p>Note that poking around in Drill suggests that Drill has very poor support for Parquet logical types. Some times cause an error, the DATE type causes very bizarre output.</p> 
+<p>The syntax allows structured types (though I've not tried this yet):</p> 
+<pre><code>message structured {
+  required int32 index;
+  required repeated group aList {
+    optional int32 first;
+    optional int32 second;
+  }
+}   
+</code></pre> 
 <h2> <a id="file-builder" class="anchor" href="#file-builder" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>File Builder</h2> 
 <p>The heart of this example is the <code>SimpleParquetWriter</code> class. It wraps up a bunch of cruft to provide a simple interface for creating files using Hive-style &quot;writable&quot; classes: <code>IntWritable</code>, <code>LongWritable</code>, and so on. Parquet provides the <code>Builder</code> class to create a Parquet writer. The code here defines a subclass, <code>SimpleBuilder</code> to create a Hive-style writer. The <code>SimpleParquetWriter</code> class is a thin wrapper on top of the <code>Builder</code> to make it easy to programmatically write files using a default set of Parquet attribute. A constructor is available to let you set all the Parquet &quot;knobs&quot; programatically using the <code>SimpleBuilder</code>, then us this to create your simple writer. </p> 
 <h2> <a id="writing-a-file" class="anchor" href="#writing-a-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Writing a File</h2> 
 <p>The <code>BuildFilesDirect</code> shows an example of creating a file. Start with a schema, then write data to the file using the <code>Writable</code> classes. The examples here write just a few &quot;special&quot; values, such as 0 and extreme values. The blog post shown above shows how to generate millions of rows of randomized data.S</p> 
 <h2> <a id="csv-based-extension" class="anchor" href="#csv-based-extension" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CSV-based Extension</h2> 
-<p>Not in this code, but a possible extension, is to get the data and schema from a CSV file. Maybe something like:</p> 
+<p>Not in this code, but a possible extension, is to get the data and schema from a CSV file. Maybe the first line would have the name, the second the type. Something like this:</p> 
 <pre><code>index,value,raw
 required int32,required int32 (Date),required int32
 1, 0, 0
 2, -1, -1
 ...
 </code></pre> 
-<p>That was not helpful for the particular tests created here (where it was handy to create data in a program), but is something we could add.</p>
+<p>Or, perhaps the type can be specified in a separate file: <code>foo.schema</code> for <code>foo.csv</code>.</p> 
+<p>The point is, having the schema lets you have much finer control than you get from CSV or JSON alone since those two text formats just have numeric values, but Parquet has <code>int_8</code>, <code>int_16</code>, and so on.</p> 
+<p>This part hasn't yet been added because it was not needed for the particular tests created here (where it was handy to create data in a program), but it is something we could add.</p>
 </body>
 </html>

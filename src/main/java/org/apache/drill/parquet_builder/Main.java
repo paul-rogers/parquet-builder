@@ -18,6 +18,8 @@ public class Main
     private void run() throws IOException {
       File destDir = new File( "/Users/progers/play/data" );
       BuildFilesDirect builder = new BuildFilesDirect( destDir );
-      builder.buildInt32Int16();
+      builder.buildInt32Uint8( );
+      builder.buildInt32Uint16( );
+      builder.buildInt32Uint32( );
     }
 }

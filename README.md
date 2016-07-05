@@ -22,9 +22,28 @@ example:
     message test { required int32 index; required int32 value (DATE); required int32 raw; }
 
 A note in the Parquet code says that the syntax follows that in the 
-[Google Dremel paper](http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/36632.pdf). The one addition seems to be the syntax for specifying the Parquet logical type (the "(DATE)" bit in the second column
+[Google Dremel paper](http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/36632.pdf). The one addition seems to be the syntax for specifying the logical type (see below.)
+
+- It seems that the message name is not used (or, I've not discovered it), just use anything you want.
+- For each field, you give the cardinality using the same modes as in Drill: `required`, `optional` or `repeated`.
+- Next is the storage type, using one of those [defined in Parquet](https://parquet.apache.org/documentation/latest/).
+- Next is the field name as it will appear in Drill or when examining the file with the Parquet tools.
+- The last field is optional and is the the Parquet logical type (the "(DATE)" bit in the second column
 above). See [this page](https://github.com/Parquet/parquet-format/blob/master/LogicalTypes.md) 
 for the Parquet logical types.
+
+Note that poking around in Drill suggests that Drill has very poor support for Parquet logical types. Some times
+cause an error, the DATE type causes very bizarre output.
+
+The syntax allows structured types (though I've not tried this yet):
+
+    message structured {
+      required int32 index;
+      required repeated group aList {
+        optional int32 first;
+        optional int32 second;
+      }
+    }   
 
 ## File Builder
 
@@ -45,13 +64,20 @@ values. The blog post shown above shows how to generate millions of rows of rand
 
 ## CSV-based Extension
 
-Not in this code, but a possible extension, is to get the data and schema from a CSV file. Maybe something like:
+Not in this code, but a possible extension, is to get the data and schema from a CSV file. Maybe the first line would
+have the name, the second the type. Something like this:
 
     index,value,raw
     required int32,required int32 (Date),required int32
     1, 0, 0
     2, -1, -1
     ...
-    
-That was not helpful for the particular tests created here (where it was handy to create data in a program),
-but is something we could add.
+
+Or, perhaps the type can be specified in a separate file: `foo.schema` for `foo.csv`.
+
+The point is, having the schema lets you have much finer control than you get from CSV or JSON alone since those two
+text formats just have numeric values, but Parquet has `int_8`, `int_16`, and so on.
+
+This part hasn't yet been added because it was not needed for the particular tests created here 
+(where it was handy to create data in a program),
+but it is something we could add.

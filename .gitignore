@@ -3,3 +3,4 @@
 .settings/*
 *.swp
 target/*
+.README.md.html

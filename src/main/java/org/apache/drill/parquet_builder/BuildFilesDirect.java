@@ -19,6 +19,10 @@ public class BuildFilesDirect
     buildInt32Int32( );
     buildInt2Date( );
     buildInt32Int16( );
+    buildInt32Int8( );
+    buildInt32Uint8( );
+    buildInt32Uint16( );
+    buildInt32Uint32( );
   }
 
   /**
@@ -85,7 +89,7 @@ public class BuildFilesDirect
   }
   
   /**
-   * Builds a file with the int32 storage type but int_16 logical type.
+   * Builds a file with the int32 storage type and int_16 logical type.
    * Drill does not accept the file.
    * 
    * @throws IOException
@@ -100,6 +104,79 @@ public class BuildFilesDirect
     writer.write( new IntWritable( 3 ), new IntWritable( 1 ) );
     writer.write( new IntWritable( 4 ), new IntWritable( Short.MIN_VALUE ) );
     writer.write( new IntWritable( 5 ), new IntWritable( Short.MAX_VALUE ) );
+    writer.close( );
+  }
+  
+  /**
+   * Builds a file with the int32 storage type and int_8 logical type.
+   * Drill does not accept the file.
+   * 
+   * @throws IOException
+   */
+  
+  public void buildInt32Int8() throws IOException {
+    File outFile = new File( destDir, "int_8.parquet" );
+    String schemaText = "message int8Data { required int32 index; required int32 value (INT_8); }";
+    SimpleParquetWriter writer = new SimpleParquetWriter( outFile, schemaText );
+    writer.write( new IntWritable( 1 ), new IntWritable( 0 ) );
+    writer.write( new IntWritable( 2 ), new IntWritable( -1 ) );
+    writer.write( new IntWritable( 3 ), new IntWritable( 1 ) );
+    writer.write( new IntWritable( 4 ), new IntWritable( Byte.MIN_VALUE ) );
+    writer.write( new IntWritable( 5 ), new IntWritable( Byte.MAX_VALUE ) );
+    writer.close( );
+  }
+
+  /**
+   * Builds a file with the int32 storage type and uint_8 logical type.
+   * Drill does not accept the file.
+   * 
+   * @throws IOException
+   */
+  
+  public void buildInt32Uint8() throws IOException {
+    File outFile = new File( destDir, "uint_8.parquet" );
+    String schemaText = "message uint8Data { required int32 index; required int32 value (UINT_8); }";
+    SimpleParquetWriter writer = new SimpleParquetWriter( outFile, schemaText );
+    writer.write( new IntWritable( 1 ), new IntWritable( 0 ) );
+    writer.write( new IntWritable( 2 ), new IntWritable( -1 ) );
+    writer.write( new IntWritable( 3 ), new IntWritable( 1 ) );
+    writer.write( new IntWritable( 4 ), new IntWritable( 0xFF ) );
+    writer.close( );
+  }
+
+  /**
+   * Builds a file with the int32 storage type and uint_16 logical type.
+   * Drill does not accept the file.
+   * 
+   * @throws IOException
+   */
+  
+  public void buildInt32Uint16() throws IOException {
+    File outFile = new File( destDir, "uint_16.parquet" );
+    String schemaText = "message uint16Data { required int32 index; required int32 value (UINT_16); }";
+    SimpleParquetWriter writer = new SimpleParquetWriter( outFile, schemaText );
+    writer.write( new IntWritable( 1 ), new IntWritable( 0 ) );
+    writer.write( new IntWritable( 2 ), new IntWritable( -1 ) );
+    writer.write( new IntWritable( 3 ), new IntWritable( 1 ) );
+    writer.write( new IntWritable( 4 ), new IntWritable( 0xFFFFFF ) );
+    writer.close( );
+  }
+
+  /**
+   * Builds a file with the int32 storage type and uint_16 logical type.
+   * Drill does not accept the file.
+   * 
+   * @throws IOException
+   */
+  
+  public void buildInt32Uint32() throws IOException {
+    File outFile = new File( destDir, "uint_32.parquet" );
+    String schemaText = "message uint32Data { required int32 index; required int32 value (UINT_32); }";
+    SimpleParquetWriter writer = new SimpleParquetWriter( outFile, schemaText );
+    writer.write( new IntWritable( 1 ), new IntWritable( 0 ) );
+    writer.write( new IntWritable( 2 ), new IntWritable( -1 ) );
+    writer.write( new IntWritable( 3 ), new IntWritable( 1 ) );
+    writer.write( new IntWritable( 4 ), new IntWritable( 0xFFFFFFFF ) );
     writer.close( );
   }
 
